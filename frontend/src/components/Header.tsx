@@ -1,3 +1,5 @@
+import logo from "../assets/logo.png";
+
 interface HeaderProps {
   backendOnline: boolean | null;
   totalPhotos: number;
@@ -16,10 +18,10 @@ export default function Header({
   return (
     <header className="top-header">
       <div className="brand">
-        <div className="brand-icon">🖼️</div>
+        <img src={logo} className="brand-logo"/>
         <div>
           <h1>PicsDrop <span>AI</span></h1>
-          <p>AI Event Memory Orchestrator</p>
+          <p>Capture| Organize | Remember</p>
         </div>
       </div>
 
