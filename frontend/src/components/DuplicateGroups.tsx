@@ -32,10 +32,10 @@ export default function DuplicateGroups({ duplicateGroups, photos }: DuplicateGr
               Duplicate Group #{idx + 1}
             </h4>
             <div className="duplicate-cards-row">
-              {group.map((pid) => {
+              {group.map((pid, photoIndex) => {
                 const p = photos.find((x) => x.id === pid);
                 if (!p) return null;
-                const isBest = p.quality_score === maxScore && p.quality_score > 0;
+                const isBest = photoIndex === 0;
                 return (
                   <div
                     key={pid}
@@ -82,7 +82,7 @@ export default function DuplicateGroups({ duplicateGroups, photos }: DuplicateGr
                           fontWeight: '700',
                         }}
                       >
-                        👍 KEEP BEST
+                        👍 Recommended Keep
                       </span>
                     )}
                   </div>
