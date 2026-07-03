@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 import threading
 
+
 class Database:
     def __init__(self):
         self._collections: Dict[str, Dict[str, Any]] = {}
@@ -16,10 +17,11 @@ class Database:
                 "name": name,
                 "description": description or "",
                 "created_at": datetime.utcnow().isoformat(),
-                "status": "idle",  # idle, analyzing, completed, failed
-                "photos": {},  # photo_id -> photo_details
-                "albums": [],  # list of created albums
-                "duplicate_groups": []  # list of duplicate groups (list of photo IDs)
+                "status": "idle",
+                "photos": {},
+                "albums": [],
+                "duplicate_groups": [],
+                "logs": [],
             }
             self._collections[collection_id] = collection
             return collection
@@ -32,52 +34,82 @@ class Database:
         with self._lock:
             if collection_id not in self._collections:
                 return None
-            
+
             registered = []
+
             for url in urls:
                 photo_id = str(uuid.uuid4())
+                name = url.split("/")[-1].split("?")[0].split("#")[-1] or f"photo_{photo_id[:8]}.jpg"
+
                 photo = {
                     "id": photo_id,
-                    "name": url.split("/")[-1] or f"photo_{photo_id[:8]}",
+                    "name": name,
                     "url": url,
                     "type": "url",
+                    "source_type": "url",
+                    "source_url": url,
+                    "local_path": None,
                     "registered_at": datetime.utcnow().isoformat(),
-                    "status": "registered",  # registered, analyzing, analyzed
-                    # Placeholder metadata, populated during analysis
+                    "status": "registered",
+                    "analysis_json": None,
+                    "image_hash": None,
                     "quality_score": 0.0,
-                    "quality_details": {"sharpness": 0.0, "composition": 0.0, "lighting": 0.0, "issues": []},
+                    "quality_details": {
+                        "sharpness": 0.0,
+                        "composition": 0.0,
+                        "lighting": 0.0,
+                        "issues": [],
+                    },
                     "caption": "",
-                    "tags": []
+                    "tags": [],
                 }
+
                 self._collections[collection_id]["photos"][photo_id] = photo
                 registered.append(photo)
-            
-            # Reset status if new photos are registered
+
             self._collections[collection_id]["status"] = "idle"
             return registered
 
-    def upload_photo(self, collection_id: str, filename: str, content_type: str) -> Optional[Dict[str, Any]]:
+    def upload_photo(
+        self,
+        collection_id: str,
+        original_filename: str,
+        stored_filename: str,
+        content_type: str,
+        local_path: str,
+    ) -> Optional[Dict[str, Any]]:
         with self._lock:
             if collection_id not in self._collections:
                 return None
-            
+
             photo_id = str(uuid.uuid4())
-            # storage-agnostic simulation: mock url
-            mock_url = f"http://localhost:8000/static/uploads/{collection_id}/{photo_id}_{filename}"
+            public_url = f"http://localhost:8000/uploads/{stored_filename}"
+
             photo = {
                 "id": photo_id,
-                "name": filename,
-                "url": mock_url,
+                "name": original_filename,
+                "url": public_url,
                 "type": "upload",
+                "source_type": "upload",
+                "source_url": public_url,
+                "local_path": local_path,
+                "content_type": content_type,
                 "registered_at": datetime.utcnow().isoformat(),
                 "status": "uploaded",
+                "analysis_json": None,
+                "image_hash": None,
                 "quality_score": 0.0,
-                "quality_details": {"sharpness": 0.0, "composition": 0.0, "lighting": 0.0, "issues": []},
+                "quality_details": {
+                    "sharpness": 0.0,
+                    "composition": 0.0,
+                    "lighting": 0.0,
+                    "issues": [],
+                },
                 "caption": "",
-                "tags": []
+                "tags": [],
             }
+
             self._collections[collection_id]["photos"][photo_id] = photo
-            # Reset status
             self._collections[collection_id]["status"] = "idle"
             return photo
 
@@ -90,9 +122,12 @@ class Database:
 
     def update_photo_analysis(self, collection_id: str, photo_id: str, analysis_data: Dict[str, Any]) -> bool:
         with self._lock:
-            if collection_id not in self._collections or photo_id not in self._collections[collection_id]["photos"]:
+            if collection_id not in self._collections:
                 return False
-            
+
+            if photo_id not in self._collections[collection_id]["photos"]:
+                return False
+
             photo = self._collections[collection_id]["photos"][photo_id]
             photo.update(analysis_data)
             photo["status"] = "analyzed"
@@ -111,5 +146,6 @@ class Database:
                 self._collections[collection_id]["albums"] = albums
                 return True
             return False
+
 
 db = Database()
