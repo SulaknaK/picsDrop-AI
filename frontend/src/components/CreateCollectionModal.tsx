@@ -35,13 +35,13 @@ export default function CreateCollectionModal({
       <div className="glass-panel" style={{ width: '400px', padding: '24px' }}>
         <h3
           className="font-outfit"
-          style={{ fontSize: '18px', color: '#fff', marginBottom: '16px' }}
+          style={{ fontSize: '18px', color: '#1a1a1aff', marginBottom: '16px' }}
         >
           Create New Collection
         </h3>
         <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label style={{ fontSize: '12px', color: '#9ca3af' }}>Collection Name</label>
+            <label style={{ fontSize: '12px', color: '#1a1a1aff'}}>Collection Name</label>
             <input
               type="text"
               required
@@ -53,13 +53,13 @@ export default function CreateCollectionModal({
                 borderRadius: '6px',
                 border: '1px solid var(--border-color)',
                 background: 'rgba(0,0,0,0.2)',
-                color: '#fff',
+                color: '#1a1a1aff',
                 fontSize: '13px',
               }}
             />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label style={{ fontSize: '12px', color: '#9ca3af' }}>Description (Optional)</label>
+            <label style={{ fontSize: '12px', color: '#1a1a1aff' }}>Description (Optional)</label>
             <textarea
               value={description}
               onChange={(e) => onDescriptionChange(e.target.value)}
@@ -69,7 +69,7 @@ export default function CreateCollectionModal({
                 borderRadius: '6px',
                 border: '1px solid var(--border-color)',
                 background: 'rgba(0,0,0,0.2)',
-                color: '#fff',
+                color: '#1a1a1aff',
                 fontSize: '13px',
                 height: '80px',
               }}

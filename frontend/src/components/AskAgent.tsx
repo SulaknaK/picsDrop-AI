@@ -38,10 +38,10 @@ export default function AskAgent({
   return (
     <div
       style={{
-        height: '350px',
+        height: '450px',
         display: 'flex',
         flexDirection: 'column',
-        background: 'rgba(0,0,0,0.15)',
+        background: 'rgba(179, 169, 169, 0.15)',
         borderRadius: '12px',
         border: '1px solid var(--border-color)',
       }}
@@ -91,7 +91,7 @@ export default function AskAgent({
                     border: '1px solid rgba(255,255,255,0.06)',
                     borderRadius: '20px',
                     padding: '4px 10px',
-                    fontSize: '11px',
+                    fontSize: '12px',
                     cursor: 'pointer',
                   }}
                 >

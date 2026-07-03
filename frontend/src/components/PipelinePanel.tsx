@@ -17,6 +17,28 @@ const AGENTS = [
   { key: 'AlbumAgent',       label: 'AlbumAgent',   emoji: '🗂️', activeColor: 'rgba(16, 185, 129, 0.2)', activeBorder: 'var(--success)',  activeText: 'var(--success)',   lineColor: 'var(--warning)' },
 ];
 
+// Keywords that indicate a Gemini quota / API key error in the log message
+const QUOTA_KEYWORDS = [
+  'quota',
+  'rate limit',
+  'rate_limit',
+  'resource_exhausted',
+  'resourceexhausted',
+  'quota exceeded',
+  'too many requests',
+  '429',
+  'api key not valid',
+  'api_key_invalid',
+  'invalid api key',
+];
+
+function detectFailureType(logs: PipelineLog[]): 'quota' | 'generic' | null {
+  if (logs.length === 0) return null;
+  const lastMsg = logs[logs.length - 1].message.toLowerCase();
+  if (QUOTA_KEYWORDS.some((kw) => lastMsg.includes(kw))) return 'quota';
+  return 'generic';
+}
+
 export default function PipelinePanel({
   collectionStatus,
   isAnalyzing,
@@ -25,6 +47,8 @@ export default function PipelinePanel({
   onAnalyze,
 }: PipelinePanelProps) {
   const isCompleted = collectionStatus === 'completed';
+  const isFailed = collectionStatus === 'failed';
+  const failureType = isFailed ? detectFailureType(analysisLogs) : null;
   const canRun = !isAnalyzing && (
     collectionStatus === 'idle' ||
     collectionStatus === 'completed' ||
@@ -32,7 +56,7 @@ export default function PipelinePanel({
   );
 
   return (
-    <div className="glass-panel" style={{ padding: '16px' }}>
+    <div className="glass-panel" style={{ padding: '16px', marginTop: '15px' }}>
       {/* Header row */}
       <div
         style={{
@@ -45,10 +69,10 @@ export default function PipelinePanel({
         }}
       >
         <div>
-          <h4 className="font-outfit" style={{ fontSize: '14px', color: '#fff' }}>
+          <h4 className="font-outfit" style={{ fontSize: '16px', color: '#262627ff', padding:'3px' }}>
             Agentic Indexing Pipeline
           </h4>
-          <p style={{ fontSize: '11px', color: '#9ca3af' }}>
+          <p style={{ fontSize: '14px', color: '#262627ff', padding:'2px' }}>
             Runs coordinator and specialized agents sequentially
           </p>
         </div>
@@ -60,7 +84,7 @@ export default function PipelinePanel({
             style={{
               background: 'linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%)',
               border: 'none',
-              color: '#fff',
+              color: '#ffffffff',
               padding: '8px 20px',
               borderRadius: '8px',
               cursor: 'pointer',
@@ -87,7 +111,7 @@ export default function PipelinePanel({
       </div>
 
       {/* Agent flow map */}
-      <div className="pipeline-agent-row">
+      <div className="pipeline-agent-row" style={{backgroundColor: 'pink'}}>
         {AGENTS.map((agent, idx) => {
           const isActive = activeAgent === agent.key;
           return (
@@ -183,6 +207,8 @@ export default function PipelinePanel({
                     ? 'var(--secondary)'
                     : log.status === 'warning'
                     ? 'var(--warning)'
+                    : log.status === 'failed'
+                    ? 'var(--danger)'
                     : '#10b981',
               }}
             >
@@ -192,6 +218,67 @@ export default function PipelinePanel({
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Failure alert banner */}
+      {failureType === 'quota' && (
+        <div
+          style={{
+            marginTop: '12px',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            background: 'rgba(245, 158, 11, 0.1)',
+            border: '1px solid rgba(245, 158, 11, 0.4)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '10px',
+          }}
+        >
+          <span style={{ fontSize: '18px', flexShrink: 0 }}>⚠️</span>
+          <div>
+            <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--warning)', marginBottom: '4px' }}>
+              Gemini API quota reached
+            </p>
+            <p style={{ fontSize: '12px', color: '#2f3031ff', lineHeight: '1.5' }}>
+              Your Gemini API quota has been exhausted. Please wait a few minutes and try again,
+              or check your API key limits in the{' '}
+              <a
+                href="https://aistudio.google.com/apikey"
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: 'var(--warning)', textDecoration: 'underline' }}
+              >
+                Google AI Studio
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      )}
+
+      {failureType === 'generic' && (
+        <div
+          style={{
+            marginTop: '12px',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            background: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.35)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '10px',
+          }}
+        >
+          <span style={{ fontSize: '18px', flexShrink: 0 }}>❌</span>
+          <div>
+            <p style={{ fontSize: '13px', fontWeight: '700', color: 'var(--danger)', marginBottom: '4px' }}>
+              Analysis failed
+            </p>
+            <p style={{ fontSize: '12px', color: '#d1d5db', lineHeight: '1.5' }}>
+              Something went wrong during the AI pipeline. Check the logs above for details, then click Re-analyze to try again.
+            </p>
+          </div>
         </div>
       )}
     </div>

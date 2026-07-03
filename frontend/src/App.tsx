@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 import type { Collection, Photo, ChatMessage, TabId, PipelineLog, Album } from './types';
-import { DEFAULT_URLS } from './constants/demoUrls';
 import {
   checkHealth,
   createCollection,
-  registerUrls,
   uploadFiles,
   fetchCollectionResults,
   triggerAnalysis,
@@ -14,7 +12,6 @@ import {
 
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
-import CollectionSummary from './components/CollectionSummary';
 import PhotoRegistrationPanel from './components/PhotoRegistrationPanel';
 import PipelinePanel from './components/PipelinePanel';
 import TabNav from './components/TabNav';
@@ -33,7 +30,6 @@ export default function App() {
   const [newColDesc, setNewColDesc] = useState('');
 
   // Registration state
-  const [urlsInput, setUrlsInput] = useState(DEFAULT_URLS);
   const [isRegistering, setIsRegistering] = useState(false);
   const [simulatedFiles, setSimulatedFiles] = useState<File[]>([]);
 
@@ -76,7 +72,7 @@ export default function App() {
 
   const bootstrapOnlineCollection = async () => {
     if (collections.length === 0) {
-      const col = await createCollection('Summer Getaway 2026', 'A demo collection of summer photos.');
+      const col = await createCollection('Demo Collection', 'Upload photos to test AI memory pipeline.');
       if (col) {
         setCollections([col]);
         setActiveCollectionId(col.id);
@@ -110,8 +106,8 @@ export default function App() {
     const id = 'sandbox-col-1';
     const col: Collection = {
       id,
-      name: 'Hawaii Sunset & Food (Sandbox)',
-      description: 'Running completely in-browser since FastAPI backend is offline.',
+      name: 'Demo Collection',
+      description: 'Upload photos to test the AI memory pipeline.',
       created_at: new Date().toISOString(),
       status: 'idle',
       photos: [],
@@ -157,45 +153,6 @@ export default function App() {
   };
 
   // ─── Photo registration handlers ─────────────────────────────────────────
-
-  const handleRegisterUrls = async () => {
-    if (!activeCollectionId || !urlsInput.trim()) return;
-    setIsRegistering(true);
-    const urls = urlsInput.split('\n').map((u) => u.trim()).filter(Boolean);
-
-    if (backendOnline) {
-      try {
-        const ok = await registerUrls(activeCollectionId, urls);
-        if (ok) await refreshCollection(activeCollectionId);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsRegistering(false);
-      }
-    } else {
-      setTimeout(() => {
-        const col = sandboxDB.current[activeCollectionId];
-        if (col) {
-          const newPhotos: Photo[] = urls.map((url, i) => ({
-            id: `photo-${Math.random().toString(36).substr(2, 9)}`,
-            name: url.split('/').pop()?.split('#').pop() ?? `image_${i}.jpg`,
-            url,
-            type: 'url',
-            registered_at: new Date().toISOString(),
-            status: 'registered',
-            quality_score: 0,
-            quality_details: { sharpness: 0, composition: 0, lighting: 0, issues: [] },
-            caption: '',
-            tags: [],
-          }));
-          col.photos = [...col.photos, ...newPhotos];
-          col.status = 'idle';
-          setCollections([...collections]);
-        }
-        setIsRegistering(false);
-      }, 800);
-    }
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) setSimulatedFiles(Array.from(e.target.files));
@@ -461,7 +418,10 @@ export default function App() {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header
         backendOnline={backendOnline}
-        onCreateCollection={() => setShowCreateModal(true)}
+        totalPhotos={activeCollection?.photos.length || 0}
+        avgQuality={ Number(avgQuality) }
+        albumsCount={activeCollection?.albums.length || 0}
+        duplicatesCount={activeCollection?.duplicate_groups.length || 0}
       />
 
       <main className="app-main">
@@ -469,18 +429,16 @@ export default function App() {
           collections={collections}
           activeCollectionId={activeCollectionId}
           onSelect={(id) => { setActiveCollectionId(id); setSelectedAlbumId(null); }}
+          onCreateCollection={() => setShowCreateModal(true)}
         />
 
         <section className="center-workspace">
           {activeCollection ? (
             <>
-              <CollectionSummary collection={activeCollection} avgQuality={avgQuality} />
+              {/* <CollectionSummary collection={activeCollection} avgQuality={avgQuality} /> */}
 
               {photos.length === 0 ? (
                 <PhotoRegistrationPanel
-                  urlsInput={urlsInput}
-                  onUrlsChange={setUrlsInput}
-                  onRegisterUrls={handleRegisterUrls}
                   isRegistering={isRegistering}
                   simulatedFiles={simulatedFiles}
                   onFileChange={handleFileChange}

@@ -1,65 +1,40 @@
-import React from 'react';
-
 interface HeaderProps {
   backendOnline: boolean | null;
-  onCreateCollection: () => void;
+  totalPhotos: number;
+  avgQuality: number;
+  albumsCount: number;
+  duplicatesCount: number;
 }
 
-export default function Header({ backendOnline, onCreateCollection }: HeaderProps) {
+export default function Header({
+  backendOnline,
+  totalPhotos,
+  avgQuality,
+  albumsCount,
+  duplicatesCount,
+}: HeaderProps) {
   return (
-    <header className="glass-panel app-header">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <span style={{ fontSize: '28px' }}>📸</span>
+    <header className="top-header">
+      <div className="brand">
+        <div className="brand-icon">🖼️</div>
         <div>
-          <h1
-            className="font-outfit"
-            style={{ fontSize: '22px', fontWeight: '800', letterSpacing: '-0.5px', color: '#fff' }}
-          >
-            PicsDrop <span className="text-gradient-primary">AI</span>
-          </h1>
-          <p style={{ fontSize: '11px', color: '#9ca3af' }}>AI Event Memory Orchestrator</p>
+          <h1>PicsDrop <span>AI</span></h1>
+          <p>AI Event Memory Orchestrator</p>
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '12px',
-            padding: '6px 12px',
-            borderRadius: '30px',
-            background: 'rgba(255,255,255,0.05)',
-          }}
-        >
-          <span
-            style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: backendOnline ? 'var(--success)' : 'var(--warning)',
-              display: 'inline-block',
-            }}
-          />
-          <span>{backendOnline ? 'API Connected' : 'Browser Sandbox'}</span>
+      <div className="header-right">
+        <div className={`status-pill ${backendOnline ? 'online' : 'offline'}`}>
+          <span />
+          {backendOnline ? 'API Connected' : 'Demo Mode'}
         </div>
-        <button
-          onClick={onCreateCollection}
-          className="glass-panel"
-          style={{
-            background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
-            border: 'none',
-            color: 'white',
-            padding: '8px 16px',
-            borderRadius: '8px',
-            fontSize: '13px',
-            fontWeight: '600',
-            cursor: 'pointer',
-          }}
-        >
-          + Create Collection
-        </button>
+
+        <div className="header-stats">
+          <div><strong>{totalPhotos}</strong><small>Total Photos</small></div>
+          <div><strong>{avgQuality.toFixed(2)}</strong><small>Avg Quality</small></div>
+          <div><strong>{albumsCount}</strong><small>Albums</small></div>
+          <div><strong>{duplicatesCount}</strong><small>Duplicates</small></div>
+        </div>
       </div>
     </header>
   );
