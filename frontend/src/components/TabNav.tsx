@@ -31,7 +31,7 @@ export default function TabNav({ activeTab, dupsCount, onTabChange }: TabNavProp
           style={{
             background: 'none',
             border: 'none',
-            color: activeTab === tab.id ? '#fff' : '#6b7280',
+            color: activeTab === tab.id ? '#0a1392ff' : '#6b7280',
             fontSize: '14px',
             fontWeight: '600',
             padding: '8px 12px',
