@@ -4,7 +4,7 @@ from app.tools.duplicate_detection import DuplicateDetectionTool
 from app.tools.image_hash_tool import ImageHashTool
 
 
-class DuplicateAgent:
+class DuplicateFinderAgent:
     def __init__(self):
         self.duplicate_tool = DuplicateDetectionTool()
         self.hash_tool = ImageHashTool()

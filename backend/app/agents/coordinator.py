@@ -4,10 +4,10 @@ import logging
 from app.models.database import db
 from app.tools.photo_source import PhotoSourceTool
 from app.agents.image_analysis import ImageAnalysisAgent
-from app.agents.quality import QualityAgent
-from app.agents.duplicate import DuplicateAgent
-from app.agents.album import AlbumAgent
-from app.agents.caption import CaptionAgent
+from app.agents.quality_checker import QualityCheckerAgent
+from app.agents.duplicate_finder import DuplicateFinderAgent
+from app.agents.album_creator import AlbumCreatorAgent
+from app.agents.caption_generator import CaptionGeneratorAgent
 
 logger = logging.getLogger("coordinator")
 
@@ -20,10 +20,10 @@ class CoordinatorAgent:
     def __init__(self):
         self.photo_source_tool = PhotoSourceTool()
         self.image_analysis_agent = ImageAnalysisAgent()
-        self.quality_agent = QualityAgent()
-        self.caption_agent = CaptionAgent()
-        self.duplicate_agent = DuplicateAgent()
-        self.album_agent = AlbumAgent()
+        self.quality_agent = QualityCheckerAgent()
+        self.caption_agent = CaptionGeneratorAgent()
+        self.duplicate_agent = DuplicateFinderAgent()
+        self.album_agent = AlbumCreatorAgent()
 
     def analyze_collection(self, collection_id: str) -> bool:
         collection = db.get_collection(collection_id)
