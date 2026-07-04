@@ -10,11 +10,11 @@ interface PipelinePanelProps {
 }
 
 const AGENTS = [
-  { key: 'CoordinatorAgent', label: 'Coordinator', emoji: '👑', activeColor: 'rgba(168, 85, 247, 0.2)', activeBorder: 'var(--secondary)', activeText: 'var(--secondary)', lineColor: 'var(--secondary)' },
-  { key: 'QualityAgent',     label: 'QualityAgent', emoji: '✨', activeColor: 'rgba(99, 102, 241, 0.2)',  activeBorder: 'var(--primary)',   activeText: 'var(--primary)',   lineColor: 'var(--primary)' },
-  { key: 'CaptionAgent',     label: 'CaptionAgent', emoji: '📝', activeColor: 'rgba(20, 184, 166, 0.2)',  activeBorder: 'var(--accent)',    activeText: 'var(--accent)',    lineColor: 'var(--accent)' },
-  { key: 'DuplicateAgent',   label: 'DuplicateAgent',emoji: '👯', activeColor: 'rgba(245, 158, 11, 0.2)', activeBorder: 'var(--warning)',  activeText: 'var(--warning)',   lineColor: 'var(--warning)' },
-  { key: 'AlbumAgent',       label: 'AlbumAgent',   emoji: '🗂️', activeColor: 'rgba(16, 185, 129, 0.2)', activeBorder: 'var(--success)',  activeText: 'var(--success)',   lineColor: 'var(--warning)' },
+  { key: 'CoordinatorAgent', label: 'CoordinatorAgent', emoji: '👑', activeColor: 'rgba(168, 85, 247, 0.2)', activeBorder: 'var(--secondary)', activeText: 'var(--secondary)', lineColor: 'var(--secondary)' },
+  { key: 'QualityCheckerAgent', label: 'QualityCheckerAgent', emoji: '✨', activeColor: 'rgba(99, 102, 241, 0.2)', activeBorder: 'var(--primary)', activeText: 'var(--primary)', lineColor: 'var(--primary)' },
+  { key: 'CaptionGeneratorAgent', label: 'CaptionGeneratorAgent', emoji: '📝', activeColor: 'rgba(20, 184, 166, 0.2)', activeBorder: 'var(--accent)', activeText: 'var(--accent)', lineColor: 'var(--accent)' },
+  { key: 'DuplicateFinderAgent', label: 'DuplicateFinderAgent', emoji: '👯', activeColor: 'rgba(245, 158, 11, 0.2)', activeBorder: 'var(--warning)', activeText: 'var(--warning)', lineColor: 'var(--warning)' },
+  { key: 'AlbumCreatorAgent', label: 'AlbumCreatorAgent', emoji: '🗂️', activeColor: 'rgba(16, 185, 129, 0.2)', activeBorder: 'var(--success)', activeText: 'var(--success)', lineColor: 'var(--warning)' },
 ];
 
 // Keywords that indicate a Gemini quota / API key error in the log message
@@ -69,10 +69,10 @@ export default function PipelinePanel({
         }}
       >
         <div>
-          <h4 className="font-outfit" style={{ fontSize: '16px', color: '#262627ff', padding:'3px' }}>
+          <h4 className="font-outfit" style={{ fontSize: '16px', color: '#262627ff', padding: '3px' }}>
             Agentic Indexing Pipeline
           </h4>
-          <p style={{ fontSize: '14px', color: '#262627ff', padding:'2px' }}>
+          <p style={{ fontSize: '14px', color: '#262627ff', padding: '2px' }}>
             Runs coordinator and specialized agents sequentially
           </p>
         </div>
@@ -111,7 +111,7 @@ export default function PipelinePanel({
       </div>
 
       {/* Agent flow map */}
-      <div className="pipeline-agent-row" style={{backgroundColor: 'pink'}}>
+      <div className="pipeline-agent-row" style={{ backgroundColor: 'pink' }}>
         {AGENTS.map((agent, idx) => {
           const isActive = activeAgent === agent.key;
           return (
@@ -138,13 +138,13 @@ export default function PipelinePanel({
                     background: isCompleted
                       ? 'rgba(16, 185, 129, 0.15)'
                       : isActive
-                      ? agent.activeColor
-                      : 'rgba(255, 255, 255, 0.05)',
+                        ? agent.activeColor
+                        : 'rgba(255, 255, 255, 0.05)',
                     borderColor: isCompleted
                       ? 'var(--success)'
                       : isActive
-                      ? agent.activeBorder
-                      : 'var(--border-color)',
+                        ? agent.activeBorder
+                        : 'var(--border-color)',
                   }}
                 >
                   {agent.emoji}
@@ -206,10 +206,10 @@ export default function PipelinePanel({
                   log.status === 'running'
                     ? 'var(--secondary)'
                     : log.status === 'warning'
-                    ? 'var(--warning)'
-                    : log.status === 'failed'
-                    ? 'var(--danger)'
-                    : '#10b981',
+                      ? 'var(--warning)'
+                      : log.status === 'failed'
+                        ? 'var(--danger)'
+                        : '#10b981',
               }}
             >
               <span>[{log.agent}]</span> {log.message}{' '}

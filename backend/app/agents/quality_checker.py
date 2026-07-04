@@ -3,7 +3,7 @@ from typing import Dict, Any
 from app.tools.image_quality import ImageQualityTool
 
 
-class QualityAgent:
+class QualityCheckerAgent:
     def __init__(self):
         self.quality_tool = ImageQualityTool()
 

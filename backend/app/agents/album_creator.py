@@ -4,7 +4,7 @@ import uuid
 from app.tools.album_creation import AlbumCreationTool
 
 
-class AlbumAgent:
+class AlbumCreatorAgent:
     def __init__(self):
         self.album_tool = AlbumCreationTool()
 

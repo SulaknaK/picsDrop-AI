@@ -1,13 +1,13 @@
 from app.agents.coordinator import CoordinatorAgent
-from app.agents.quality import QualityAgent
-from app.agents.duplicate import DuplicateAgent
-from app.agents.album import AlbumAgent
-from app.agents.caption import CaptionAgent
+from app.agents.quality_checker import QualityCheckerAgent
+from app.agents.duplicate_finder import DuplicateFinderAgent
+from app.agents.caption_generator import CaptionGeneratorAgent
+from app.agents.album_creator import AlbumCreatorAgent
 
 __all__ = [
     "CoordinatorAgent",
-    "QualityAgent",
-    "DuplicateAgent",
-    "AlbumAgent",
-    "CaptionAgent"
+    "QualityCheckerAgent",
+    "DuplicateFinderAgent",
+    "AlbumCreatorAgent",
+    "CaptionGeneratorAgent"
 ]

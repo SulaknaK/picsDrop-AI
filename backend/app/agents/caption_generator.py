@@ -3,7 +3,7 @@ from typing import Dict, Any
 from app.tools.caption_generation import CaptionGenerationTool
 
 
-class CaptionAgent:
+class CaptionGeneratorAgent:
     """
     Reads captions/tags from analysis_json when available.
     Falls back to old CaptionGenerationTool if analysis_json is missing.
