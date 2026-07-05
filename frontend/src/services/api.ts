@@ -40,21 +40,6 @@ export async function createCollection(
   return null;
 }
 
-export async function registerUrls(
-  collectionId: string,
-  urls: string[]
-): Promise<boolean> {
-  const res = await fetch(
-    `${API_BASE_URL}/collections/${collectionId}/photos/register`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ urls }),
-    }
-  );
-  return res.ok;
-}
-
 export async function uploadFiles(
   collectionId: string,
   files: File[]
