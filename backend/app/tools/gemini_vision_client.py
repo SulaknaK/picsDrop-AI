@@ -44,7 +44,7 @@ Use this exact structure:
     "eyes_open": true,
     "happy": true,
     "smiling": true,
-    "group_photo": true
+    "group_photo": true,
     "portrait": false
   },
   "info": {
@@ -66,7 +66,6 @@ Use this exact structure:
 }
 
 Rules:
-- score must be between 0 and 1
 - caption should be short, fun and social-media friendly.
 - people.count should be the estimated number of visible people.
 - If no people are present, people.count must be 0 and all other people fields must be false.
@@ -75,7 +74,7 @@ Rules:
 - smiling should be true only if visible people appear to be smiling.
 - group_photo should be true for group photos with 3 or more people.
 - portrait should be true for close-up/person-focused portraits.
-- event.photo_type should be one of: group, couple, portrait, candid, selfie, landscape, food, stage, decoration, ceremony, dance_floor, travel, general.
+- info.photo_type should be one of: group, couple, portrait, candid, selfie, landscape, food, stage, decoration, ceremony, dance_floor, travel, general.
 - indoor and outdoor must be true/false
 - lighting should be one of: good, dark, overexposed
 - composition should be one of: good, average, poor
@@ -84,6 +83,7 @@ Rules:
 - noise must be one of: low, medium, high.
 - quality_reason should briefly explain the quality decision.
 - colors should list 2-5 dominant colors.
+- ocr should include visible text only. Use [] if no text is visible.
 - tags should include 3-8 useful search tags.
 - return JSON only
 """

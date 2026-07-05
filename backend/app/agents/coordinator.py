@@ -9,12 +9,15 @@ from app.agents.duplicate_finder import DuplicateFinderAgent
 from app.agents.album_creator import AlbumCreatorAgent
 from app.agents.caption_generator import CaptionGeneratorAgent
 
-logger = logging.getLogger("coordinator")
+logger = logging.getLogger("Coordinator")
 
 
 class CoordinatorAgent:
     """
-    Main orchestrator that coordinates analysis using sub-agents and tools.
+    Coordinator Agent.
+
+    Coordinates the full photo indexing pipeline and handles
+    knowledge retrieval for user questions using stored analysis_json.
     """
 
     def __init__(self):
@@ -34,18 +37,17 @@ class CoordinatorAgent:
         collection["logs"] = []
 
         def log_step(agent: str, message: str, status: str = "success"):
-            collection["logs"].append(
-                {
-                    "agent": agent,
-                    "message": message,
-                    "status": status,
-                }
-            )
+            collection["logs"].append({
+                "agent": agent,
+                "message": message,
+                "status": status,
+            })
 
         try:
             db.update_collection_status(collection_id, "analyzing")
+
             log_step(
-                "CoordinatorAgent",
+                "Coordinator Agent",
                 f"Starting analysis pipeline for collection '{collection['name']}'.",
                 "running",
             )
@@ -53,72 +55,110 @@ class CoordinatorAgent:
             photos_dict = collection.get("photos", {})
 
             if not photos_dict:
-                log_step("CoordinatorAgent", "No photos found in collection to analyze.", "warning")
+                log_step(
+                    "Coordinator Agent",
+                    "No photos found in collection to analyze.",
+                    "warning",
+                )
                 db.update_collection_status(collection_id, "completed")
                 return True
 
             photo_list = list(photos_dict.values())
             total = len(photo_list)
 
-            log_step("PhotoSourceTool", f"Validating metadata for {total} photo(s)...", "running")
+            log_step(
+                "Photo Source Tool",
+                f"Validating metadata for {total} photo(s)...",
+                "running",
+            )
             for photo in photo_list:
                 src_meta = self.photo_source_tool.process(photo)
                 photo.update(src_meta)
-            log_step("PhotoSourceTool", "Metadata validation complete.", "success")
+            log_step("Photo Source Tool", "Metadata validation complete.", "success")
 
             log_step(
-                "ImageAnalysisAgent",
-                "Creating structured analysis_json for each image...",
+                "Vision Analysis Agent",
+                "Analyzing images with Gemini Vision and creating analysis_json...",
                 "running",
             )
             for photo in photo_list:
                 analysis_meta = self.image_analysis_agent.analyze_photo(photo)
                 photo.update(analysis_meta)
-            log_step("ImageAnalysisAgent", "Image analysis JSON created.", "success")
-
-            log_step("QualityAgent", "Reading quality details from analysis_json...", "running")
-            for photo in photo_list:
-                q_meta = self.quality_agent.process_photo(photo)
-                photo.update(q_meta)
-            log_step("QualityAgent", "Quality grading complete.", "success")
-
-            log_step("CaptionAgent", "Reading captions and tags from analysis_json...", "running")
-            for photo in photo_list:
-                cap_meta = self.caption_agent.describe_photo(photo)
-                photo.update(cap_meta)
-            log_step("CaptionAgent", "Caption and tag generation complete.", "success")
-
-            updated_photos = list(collection["photos"].values())
-
-            log_step("DuplicateAgent", "Finding duplicate or near-duplicate photos...", "running")
-            dup_groups = self.duplicate_agent.find_duplicates(updated_photos)
-            db.set_duplicate_groups(collection_id, dup_groups)
             log_step(
-                "DuplicateAgent",
-                f"Deduplication complete. Found {len(dup_groups)} duplicate group(s).",
+                "Vision Analysis Agent",
+                "Structured image analysis completed.",
                 "success",
             )
 
-            log_step("AlbumAgent", "Creating smart albums from analysis_json scene/tags...", "running")
+            log_step(
+                "Quality Scoring Agent",
+                "Calculating quality scores from analysis_json...",
+                "running",
+            )
+            for photo in photo_list:
+                q_meta = self.quality_agent.process_photo(photo)
+                photo.update(q_meta)
+            log_step("Quality Scoring Agent", "Quality scoring complete.", "success")
+
+            log_step(
+                "Caption Agent",
+                "Extracting captions and tags from analysis_json...",
+                "running",
+            )
+            for photo in photo_list:
+                cap_meta = self.caption_agent.describe_photo(photo)
+                photo.update(cap_meta)
+            log_step("Caption Agent", "Caption and tag extraction complete.", "success")
+
+            updated_photos = list(collection["photos"].values())
+
+            log_step(
+                "Duplicate Detection Agent",
+                "Finding duplicate or near-duplicate photos using image hashes...",
+                "running",
+            )
+            dup_groups = self.duplicate_agent.find_duplicates(updated_photos)
+            db.set_duplicate_groups(collection_id, dup_groups)
+            log_step(
+                "Duplicate Detection Agent",
+                f"Duplicate detection complete. Found {len(dup_groups)} duplicate group(s).",
+                "success",
+            )
+
+            log_step(
+                "Smart Album Agent",
+                "Creating smart albums from scene, tag, and event metadata...",
+                "running",
+            )
             albums = self.album_agent.organize_collection(updated_photos)
             db.set_albums(collection_id, albums)
             log_step(
-                "AlbumAgent",
-                f"Smart albums created: {len(albums)} category folder(s) generated.",
+                "Smart Album Agent",
+                f"Smart album creation complete. Generated {len(albums)} album(s).",
                 "success",
             )
 
             db.update_collection_status(collection_id, "completed")
-            log_step("CoordinatorAgent", "Analysis workflow finished. Collection results compiled.", "completed")
+            log_step(
+                "Coordinator Agent",
+                "Analysis workflow finished. Collection results compiled.",
+                "completed",
+            )
             return True
 
         except Exception as e:
             logger.error(f"Analysis failed for collection {collection_id}: {str(e)}")
             db.update_collection_status(collection_id, "failed")
-            log_step("CoordinatorAgent", f"Analysis failed: {str(e)}", "failed")
+            log_step("Coordinator Agent", f"Analysis failed: {str(e)}", "failed")
             return False
 
     def ask_question(self, collection_id: str, question: str) -> Dict[str, Any]:
+        """
+        Knowledge retrieval behavior inside the Coordinator Agent.
+
+        Searches stored photo metadata and analysis_json to answer natural
+        language questions without calling Gemini again.
+        """
         collection = db.get_collection(collection_id)
 
         if not collection:
@@ -126,11 +166,13 @@ class CoordinatorAgent:
 
         photos = list(collection.get("photos", {}).values())
         q = question.lower()
-
         matches = []
 
         for photo in photos:
             analysis = photo.get("analysis_json") or {}
+            quality = analysis.get("quality", {})
+            people = analysis.get("people", {})
+            info = analysis.get("info", {})
 
             searchable_text = " ".join([
                 photo.get("name", ""),
@@ -140,13 +182,9 @@ class CoordinatorAgent:
                 analysis.get("scene", ""),
                 " ".join(analysis.get("objects", [])),
                 " ".join(analysis.get("tags", [])),
-                str(analysis.get("event", {}).get("photo_type", "")),
-                str(analysis.get("quality", {}).get("quality_reason", "")),
+                str(event.get("photo_type", "")),
+                str(quality.get("quality_reason", "")),
             ]).lower()
-
-            quality = analysis.get("quality", {})
-            people = analysis.get("people", {})
-            event = analysis.get("event", {})
 
             is_match = False
 
@@ -154,7 +192,10 @@ class CoordinatorAgent:
                 is_match = quality.get("blur") is True
 
             elif "dark" in q:
-                is_match = quality.get("lighting") == "dark" or quality.get("exposure") == "underexposed"
+                is_match = (
+                    quality.get("lighting") == "dark"
+                    or quality.get("exposure") == "underexposed"
+                )
 
             elif "best" in q or "high quality" in q:
                 is_match = photo.get("quality_score", 0) >= 0.85
@@ -163,13 +204,19 @@ class CoordinatorAgent:
                 is_match = people.get("count", 0) > 0
 
             elif "group" in q:
-                is_match = people.get("group_photo") is True or event.get("photo_type") == "group"
+                is_match = (
+                    people.get("group_photo") is True
+                    or event.get("photo_type") == "group"
+                )
 
             elif "smiling" in q or "smile" in q:
                 is_match = people.get("smiling") is True
 
             elif "portrait" in q:
-                is_match = people.get("portrait") is True or event.get("photo_type") == "portrait"
+                is_match = (
+                    people.get("portrait") is True
+                    or event.get("photo_type") == "portrait"
+                )
 
             elif "indoor" in q:
                 is_match = event.get("indoor") is True
