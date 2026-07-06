@@ -15,6 +15,7 @@ const AGENTS = [
   { key: 'CaptionGeneratorAgent', label: 'CaptionGeneratorAgent', emoji: '📝', activeColor: 'rgba(20, 184, 166, 0.2)', activeBorder: 'var(--accent)', activeText: 'var(--accent)', lineColor: 'var(--accent)' },
   { key: 'DuplicateFinderAgent', label: 'DuplicateFinderAgent', emoji: '👯', activeColor: 'rgba(245, 158, 11, 0.2)', activeBorder: 'var(--warning)', activeText: 'var(--warning)', lineColor: 'var(--warning)' },
   { key: 'AlbumCreatorAgent', label: 'AlbumCreatorAgent', emoji: '🗂️', activeColor: 'rgba(16, 185, 129, 0.2)', activeBorder: 'var(--success)', activeText: 'var(--success)', lineColor: 'var(--warning)' },
+  { key: 'ReelPlannerAgent', label: 'Reel Planner', emoji: '🎬', activeColor: 'rgba(236, 72, 153, 0.2)', activeBorder: '#ec4899', activeText: '#ec4899', lineColor: '#ec4899' },
 ];
 
 // Keywords that indicate a Gemini quota / API key error in the log message

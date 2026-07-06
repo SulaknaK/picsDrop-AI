@@ -8,6 +8,7 @@ from app.agents.quality_checker import QualityCheckerAgent
 from app.agents.duplicate_finder import DuplicateFinderAgent
 from app.agents.album_creator import AlbumCreatorAgent
 from app.agents.caption_generator import CaptionGeneratorAgent
+from app.agents.reel_planner import ReelPlannerAgent
 
 logger = logging.getLogger("Coordinator")
 
@@ -27,6 +28,7 @@ class CoordinatorAgent:
         self.caption_agent = CaptionGeneratorAgent()
         self.duplicate_agent = DuplicateFinderAgent()
         self.album_agent = AlbumCreatorAgent()
+        self.reel_planner_agent = ReelPlannerAgent()
 
     def analyze_collection(self, collection_id: str) -> bool:
         collection = db.get_collection(collection_id)
@@ -135,6 +137,21 @@ class CoordinatorAgent:
             log_step(
                 "Smart Album Agent",
                 f"Smart album creation complete. Generated {len(albums)} album(s).",
+                "success",
+            )
+
+            log_step(
+                "Reel Planner Agent",
+                "Creating AI highlight reel plan from analyzed photo descriptions...",
+                "running",
+            )
+
+            reel_plan = self.reel_planner_agent.plan_reel(collection)
+            db.set_reel_plan(collection_id, reel_plan)
+
+            log_step(
+                "Reel Planner Agent",
+                "AI highlight reel plan created.",
                 "success",
             )
 

@@ -69,6 +69,7 @@ class CollectionResultsResponse(BaseModel):
     duplicate_groups: List[List[str]]
     albums: List[AlbumResponse]
     logs: Optional[List[PipelineLog]] = None
+    reel_plan: Optional[Dict[str, Any]] = None
 
 
 class AnalysisResponse(BaseModel):

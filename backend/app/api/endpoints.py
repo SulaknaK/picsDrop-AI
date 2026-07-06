@@ -153,6 +153,7 @@ def get_results(collection_id: str):
         photos=[PhotoResponse(**p) for p in photos_list],
         duplicate_groups=collection.get("duplicate_groups", []),
         albums=collection.get("albums", []),
+        reel_plan=collection.get("reel_plan"),
         logs=collection.get("logs", []),
     )
 
