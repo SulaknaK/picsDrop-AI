@@ -21,6 +21,7 @@ import DuplicateGroups from './components/DuplicateGroups';
 import AskAgent from './components/AskAgent';
 import CreateCollectionModal from './components/CreateCollectionModal';
 import PhotoModal from './components/PhotoModal';
+import ReelPlanner from './components/ReelPlanner';
 
 export default function App() {
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -92,6 +93,7 @@ export default function App() {
                 photos: data.photos,
                 duplicate_groups: data.duplicate_groups,
                 albums: data.albums,
+                reel_plan: data.reel_plan,
                 logs: data.logs,
               }
             : c
@@ -113,6 +115,7 @@ export default function App() {
       photos: [],
       duplicate_groups: [],
       albums: [],
+      reel_plan: null,
     };
     sandboxDB.current[id] = col;
     setCollections([col]);
@@ -142,6 +145,7 @@ export default function App() {
         photos: [],
         duplicate_groups: [],
         albums: [],
+        reel_plan: null,
       };
       sandboxDB.current[localId] = col;
       setCollections((prev) => [col, ...prev]);
@@ -237,7 +241,7 @@ export default function App() {
                   setCollections((prev) =>
                     prev.map((c) =>
                       c.id === activeCollectionId
-                        ? { ...c, status: data.status, photos: data.photos, duplicate_groups: data.duplicate_groups, albums: data.albums, logs: data.logs }
+                        ? { ...c, status: data.status, photos: data.photos, duplicate_groups: data.duplicate_groups, albums: data.albums, reel_plan: data.reel_plan, logs: data.logs }
                         : c
                     )
                   );
@@ -267,13 +271,14 @@ export default function App() {
     setCollections([...collections]);
 
     const steps: PipelineLog[] = [
-      { agent: 'CoordinatorAgent', message: 'Starting sandbox analysis pipeline.', status: 'running' },
-      { agent: 'PhotoSourceTool',  message: 'Fetching and reading image sizes...', status: 'running' },
-      { agent: 'QualityAgent',     message: 'Evaluating sharpness, lighting, composition...', status: 'running' },
-      { agent: 'CaptionAgent',     message: 'Generating descriptions and tags...', status: 'running' },
-      { agent: 'DuplicateAgent',   message: 'Locating duplicates...', status: 'running' },
-      { agent: 'AlbumAgent',       message: 'Grouping into albums...', status: 'running' },
-      { agent: 'CoordinatorAgent', message: 'Pipeline complete.', status: 'completed' },
+      { agent: 'Coordinator Agent', message: 'Starting sandbox analysis pipeline.', status: 'running' },
+      { agent: 'Photo Source Tool',  message: 'Fetching and reading image sizes...', status: 'running' },
+      { agent: 'Quality Agent',     message: 'Evaluating sharpness, lighting, composition...', status: 'running' },
+      { agent: 'Caption Agent',     message: 'Generating descriptions and tags...', status: 'running' },
+      { agent: 'Duplicate Agent',   message: 'Locating duplicates...', status: 'running' },
+      { agent: 'Album Agent',       message: 'Grouping into albums...', status: 'running' },
+      { agent: "Reel Planner Agent", message: "Planning highlight reel...", status: "running"},
+      { agent: 'Coordinator Agent', message: 'Pipeline complete.', status: 'completed' },
     ];
 
     let currentStep = 0;
@@ -480,6 +485,12 @@ export default function App() {
                     {activeTab === 'duplicates' && (
                       <DuplicateGroups
                         duplicateGroups={activeCollection.duplicate_groups}
+                        photos={photos}
+                      />
+                    )}
+                    {activeTab === 'reel' && (
+                      <ReelPlanner
+                        reelPlan={activeCollection.reel_plan}
                         photos={photos}
                       />
                     )}

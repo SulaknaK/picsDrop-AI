@@ -11,6 +11,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'gallery',    label: '🖼️ Photos & Quality' },
   { id: 'albums',     label: '🗂️ Smart Albums' },
   { id: 'duplicates', label: '👯 Duplicates' },
+  { id: 'reel',       label: '🎬 Reel Plan' },
   { id: 'ask',        label: '💬 Ask Agent' },
 ];
 

@@ -21,6 +21,7 @@ class Database:
                 "photos": {},
                 "albums": [],
                 "duplicate_groups": [],
+                "reel_plan": None,
                 "logs": [],
             }
             self._collections[collection_id] = collection
@@ -144,6 +145,13 @@ class Database:
         with self._lock:
             if collection_id in self._collections:
                 self._collections[collection_id]["albums"] = albums
+                return True
+            return False
+
+    def set_reel_plan(self, collection_id: str, reel_plan: Dict[str, Any]) -> bool:
+        with self._lock:
+            if collection_id in self._collections:
+                self._collections[collection_id]["reel_plan"] = reel_plan
                 return True
             return False
 

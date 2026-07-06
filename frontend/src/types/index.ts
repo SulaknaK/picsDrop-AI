@@ -30,6 +30,26 @@ export interface PipelineLog {
   status: string;
 }
 
+export interface ReelPhoto {
+  photo_id: string;
+  order: number;
+  reason: string;
+  overlay_text: string;
+  duration_seconds: number;
+  transition: string;
+}
+
+export interface ReelPlan {
+  agent?: string;
+  reel_title: string;
+  reel_theme: string;
+  music_mood: string;
+  estimated_duration_seconds: number;
+  story_arc: string[];
+  selected_photos: ReelPhoto[];
+  closing_caption: string;
+}
+
 export interface Collection {
   id: string;
   name: string;
@@ -39,6 +59,7 @@ export interface Collection {
   photos: Photo[];
   duplicate_groups: string[][];
   albums: Album[];
+  reel_plan?: ReelPlan | null;
   logs?: PipelineLog[];
 }
 
@@ -49,4 +70,4 @@ export interface ChatMessage {
   timestamp: string;
 }
 
-export type TabId = 'gallery' | 'albums' | 'duplicates' | 'ask';
+export type TabId = 'gallery' | 'albums' | 'duplicates' | 'reel' | 'ask';
