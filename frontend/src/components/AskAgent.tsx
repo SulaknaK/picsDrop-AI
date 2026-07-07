@@ -108,7 +108,7 @@ export default function AskAgent({
                 alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                 maxWidth: '85%',
                 background:
-                  msg.sender === 'user' ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
+                  msg.sender === 'user' ? 'var(--primary)' : 'rgba(74, 185, 103, 1)',
                 borderRadius: '12px',
                 padding: '10px 14px',
                 border: msg.sender === 'user' ? 'none' : '1px solid var(--border-color)',
@@ -188,7 +188,7 @@ export default function AskAgent({
             flex: 1,
             background: 'none',
             border: 'none',
-            color: '#fff',
+            color: '#121111ff',
             padding: '8px 12px',
             fontSize: '13px',
             outline: 'none',
