@@ -199,7 +199,7 @@ class CoordinatorAgent:
                 analysis.get("scene", ""),
                 " ".join(analysis.get("objects", [])),
                 " ".join(analysis.get("tags", [])),
-                str(event.get("photo_type", "")),
+                str(info.get("photo_type", "")),
                 str(quality.get("quality_reason", "")),
             ]).lower()
 
